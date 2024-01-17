@@ -1,7 +1,7 @@
 # Scarecrow Bot 2024
 
 ### What is the Scarecrow Bot?
-At its core, the Scarecrow Bot is a robotic intervention for **humane vertebrate pest management** on farms 🐰🥕 Its functionalities can be modified according to specific event and competition needs.
+At its core, the Scarecrow Bot is an automated, humane **vertebrate pest management** for horticultural farms 🐰🍓 Its functionalities can be modified according to specific event and competition needs, e.g., the choice of stimuli to displace pests, gamification, inclusion of computer vision. 
 
 ### How this repository is used
 - Repository folders are for content storage (left red box); Projects (top red box) are used for tracking tasks and progress.
