@@ -4,10 +4,10 @@
 At its core, the Scarecrow Bot is a robotic intervention for **humane vertebrate pest management** on farms 🐰🥕 Its functionalities can be modified according to specific event and competition needs.
 
 ### How this repository is used
+- Repository folders are for content storage (left red box); Projects (top red box) are used for tracking tasks and progress.
 - Repository folders and projects are organized by event/competition.
-- Repository folders are for content storage.
-- Projects are for assigning tasks and tracking progress.
+<img width="1669" alt="Repository landing page" src="https://github.com/DAC-Of-Purdue/scarecrow-bot-2024/assets/104526653/7d5dbafb-a5fb-48d8-8aff-57584b667e76">
 
-### Participation
+### Participating events
 - [Boiler Gold Rush Entertainment Challenge 2024](https://centers.purdue.edu/fusion-studio/initiatives/bgr-entertainment-challenge/)
 - [Farm Robotics Challenge 2024](https://docs.google.com/document/d/16Sa8F_5u0tmNEUyvFqWgXRzfNcmQccku/edit)
