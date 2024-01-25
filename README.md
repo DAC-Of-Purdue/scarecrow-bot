@@ -10,7 +10,10 @@ At its core, the Scarecrow Bot is an automated, humane **vertebrate pest managem
   - If you click on an Issue, you can comment on and create checklists and subtasks for that specific Issue. Therefore, an Issue can be high level, as you can get more specific under it.
 - **Formal discussions** are posted in the [Discussions tab](https://github.com/DAC-Of-Purdue/scarecrow-bot/discussions).
 - **Ad hoc communications** are through Discord.
-- **Synchronous working** through Google Docs and [Miro](https://miro.com/app/board/uXjVN3_V8Hw=/?share_link_id=725738252533) (password: scarecrow).
+- **Synchronous working** through:
+  - Google Docs:
+    - [Questions for BGR reviewers](https://docs.google.com/document/d/1dKSXOV22rJeZjZlKzRZ9W1x4MBU6ujRMz5i0cZ4jGa4/edit)
+  - [Miro](https://miro.com/app/board/uXjVN3_V8Hw=/?share_link_id=725738252533) (password: scarecrow).
 <img width="1669" alt="Repository landing page" src="https://github.com/DAC-Of-Purdue/scarecrow-bot-2024/assets/104526653/7d5dbafb-a5fb-48d8-8aff-57584b667e76">
 
 ## Our little Bot is participating in...
