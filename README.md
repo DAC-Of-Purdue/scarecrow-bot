@@ -1,5 +1,7 @@
 # Project Overview
 
+NOTE: See [Meeting Minutes](https://docs.google.com/document/d/1291Lc2xMF6fQmzII8Qk-5AYRAA8xKqnqlUa0l3T2h20/edit) for **running** document of weekly meeting minutes. All things discussed are linked back to individual Github Issues.
+
 ## What is the Scarecrow Bot?
 At its core, the Scarecrow Bot is an automated, humane **vertebrate pest management** for horticultural farms 🐰🍓 Its functionalities can be modified according to specific event and competition needs, e.g., the choice of stimuli to displace pests, level of gamification, inclusion of computer vision. 
 
