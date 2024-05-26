@@ -23,3 +23,18 @@ Then, open the terminal on your PC and run [setup.bash](../setup.bash).
 ```bash
 source setup.bash
 ```
+
+### Actions
+
+There are several [actions](https://turtlebot.github.io/turtlebot4-user-manual/software/create3.html) available.
+To use an actions, it must following this syntax
+
+```bash
+ros2 action send_goal [action] [message_type] [value]
+```
+
+For example,
+
+```bash
+ros2 action send_goal /dock irobot_create_msgs/action/Dock {}
+```
