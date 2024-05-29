@@ -14,6 +14,16 @@ You can also use the web interface by browsing to `192.168.0.111:8000`.
 LED status light description is [here](https://iroboteducation.github.io/create3_docs/hw/face/).
 And for more detail on setting up is [here.](https://turtlebot.github.io/turtlebot4-user-manual/setup/basic.html)
 
+## ROS
+
+| Environment       | Duo-boot | Virtualization | Docker | Subsystem |
+| ----------------- | -------- | -------------- | ------ | --------- |
+| Windows x86       |          |                |        |           |
+| Windows on Arm    |          |                |        |           |
+| osX Intel         |          |                |        |           |
+| osX Apple Silicon |          |                |        |           |
+| Chromebook        |          |                |        |           |
+
 ## Controlling the robot
 
 The robot is operating ROS2 Humble.
