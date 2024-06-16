@@ -73,7 +73,7 @@ This command will launch RViz with a view from robot or in another word, what th
 It will show, for example, front-view from the camera or LiDar data.
 
 ```bash
-ros2 launch turtlebot4_viz view_model.launch.py
+ros2 launch turtlebot4_viz view_robot.launch.py
 # in another terminal
 ros2 launch turtlebot4_navigation slam.launch.py
 ```
