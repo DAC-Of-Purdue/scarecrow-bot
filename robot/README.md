@@ -81,3 +81,13 @@ ros2 launch turtlebot4_navigation slam.launch.py
 These command will open the top-view 2D coordinate.
 The starting point will be the reference point.
 Other objects and wall will show in the view according to their coordinates.
+
+## Camera
+
+To launch USB camera node with the [parameters](camera_params.yaml), run the command below.
+
+```bash
+ros2 run usb_cam usb_cam_node_exe --ros-args --params-file camera_params.yaml
+```
+
+It is a good practice to calibrate camera following this [tutorial](https://docs.ros.org/en/rolling/p/camera_calibration/tutorial_mono.html).

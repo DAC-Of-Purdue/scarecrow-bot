@@ -1,0 +1,23 @@
+/**:
+  ros__parameters:
+    video_device: "/dev/video2" # check device number by VLC player or `v4l2-ctl --list-device`
+    framerate: 10.0 # use `v4l2-ctl --device /dev/video2 --list-formats-ex` to check format and framerate
+    io_method: "mmap"
+    frame_id: "arena"
+    pixel_format: "yuyv2rgb"
+    image_width: 800
+    image_height: 600
+    camera_name: "arena_cam"
+    camera_info_url: "package://usb_cam/config/camera_info.yaml"
+    focus_auto: true
+    brightness: -1
+    contrast: -1
+    saturation: -1
+    sharpness: -1
+    gain: -1
+    auto_white_balance: true
+    white_balance: 4000
+    autoexposure: true
+    exposure: 1000
+    autofocus: false
+    focus: -1
