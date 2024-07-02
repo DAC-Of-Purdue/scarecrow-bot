@@ -60,7 +60,7 @@ ros2 interface show [message_type] # show message structure
 ros2 interface proto [message_type] # show the message prototype
 ```
 
-## RViz
+## SLAM
 
 [RViz](https://github.com/ros-visualization/rviz) is a ROS visualization tool.
 There are two built-in RViz setups from TurtleBot.
@@ -73,14 +73,46 @@ This command will launch RViz with a view from robot or in another word, what th
 It will show, for example, front-view from the camera or LiDar data.
 
 ```bash
-ros2 launch turtlebot4_viz view_robot.launch.py
-# in another terminal
 ros2 launch turtlebot4_navigation slam.launch.py
+# in another terminal
+ros2 launch turtlebot4_viz view_robot.launch.py
 ```
 
 These command will open the top-view 2D coordinate.
 The starting point will be the reference point.
 Other objects and wall will show in the view according to their coordinates.
+
+### Create a map
+
+In SLAM mode, the NAV2 stack will keep updating map from sensors (odometer & LiDar).
+You can manually drive the robot around to area until the map shown in RViz is completed.
+Then run the following command to save the map.
+
+```bash
+ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "name:
+    data: 'map_name'"
+```
+
+You will get two files (.pgm and .yaml) at the location where `ros2 launch turtlebot4_navigation slam.launch.py` is running.
+
+## Navigation
+
+With pre-defined map, we can use built-in navigation stack from NAV2.
+
+```bash
+# first run NAV2 navigation stack
+ros2 launch turtlebot4_navigation nav2.launch.py
+# run localization stack with our pre-defined map
+ros2 launch turtlebot4_navigation localization.launch.py map:=map_name.yaml
+# use RViz to visualize
+ros2 launch turtlebot4_viz view_robot.launch.py
+```
+
+After the map is loaded into RViz, use `2D Pose Estimate` (top toolbar) to indicate the robot's current position.
+Note that you don't have to be precise.
+But you should try to give the best estimate of both position and direction.
+The robot will calibrate its location with information from the predefined map.
+At this point, you can use `Nav2 goal` to automatically navigate the robot into destination.
 
 ## Camera
 
