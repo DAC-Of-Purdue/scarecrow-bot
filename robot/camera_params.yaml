@@ -4,7 +4,7 @@
     framerate: 10.0 # use `v4l2-ctl --device /dev/video2 --list-formats-ex` to check format and framerate
     io_method: "mmap"
     frame_id: "arena"
-    pixel_format: "yuyv2rgb"
+    pixel_format: "mjpeg2rgb"
     image_width: 800
     image_height: 600
     camera_name: "arena_cam"
