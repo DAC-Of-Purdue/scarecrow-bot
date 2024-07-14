@@ -122,4 +122,21 @@ To launch USB camera node with the [parameters](camera_params.yaml), run the com
 ros2 run usb_cam usb_cam_node_exe --ros-args --params-file camera_params.yaml
 ```
 
+Each camera may have different sets of configurations.
+You can see the list of configuration by running this command.
+
+```bash
+v4l2-ctl --device=/dev/video2 -L
+```
+
 It is a good practice to calibrate camera following this [tutorial](https://docs.ros.org/en/rolling/p/camera_calibration/tutorial_mono.html).
+Use this [website](https://calib.io/pages/camera-calibration-pattern-generator) to make the calibration pattern.
+For example, for checkerboard 6 rows 9 columns and checker width 30 mm, the calibration command is
+
+```bash
+ros2 run camera_calibration cameracalibrator --size 5x8 --square 0.03 --ros-args -r image:=/image_raw
+```
+
+After the calibration process, you will get one yaml file.
+Name it the same name as in `camera_params.yaml` (for example, `arena_cam.yaml`).
+Then move it (or link) to `~/.ros/camera_info/arena_cam.yaml`.
