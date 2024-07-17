@@ -1,0 +1,101 @@
+import rclpy
+import cv2 as cv
+import numpy as np
+from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge, CvBridgeError
+
+
+class RabbitDetectionNode(Node):
+
+    def __init__(self):
+        self.ARENA_SIZE = 500
+        super().__init__("rabbit_detector")
+        self.subscription = self.create_subscription(
+            Image,
+            "arena",
+            self.listener_callback,
+            qos_profile=qos_profile_sensor_data,
+        )
+        self.publisher = self.create_publisher(
+            Image, "rabbit/location_image", qos_profile=qos_profile_sensor_data
+        )
+        self.debug_publisher = self.create_publisher(
+            Image, "rabbit/debug", qos_profile=qos_profile_sensor_data
+        )
+        self.bridge = CvBridge()
+
+    def listener_callback(self, msg: Image):
+        try:
+            image_raw = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+            self.image_top_view = self.top_view_transformation(image_raw)
+            self.detect_rabbit()
+        except CvBridgeError as e:
+            self.get_logger().error("Failed to convert image: %s" % str(e))
+            return
+
+        try:
+            detection_image = self.bridge.cv2_to_imgmsg(self.image_top_view, "bgr8")
+            self.publisher.publish(detection_image)
+        except CvBridgeError as e:
+            self.get_logger().error("Failed to convert image: %s" % str(e))
+
+    def top_view_transformation(self, image):
+        """
+        Apply perspective transformation
+        """
+        H = cv.getPerspectiveTransform(
+            np.array(
+                (  # arena 4 corner's coordinates
+                    (96, 114),  # upper left
+                    (688, 22),  # upper right
+                    (1210, 272),  # lower right
+                    (366, 682),  # lower left
+                ),
+                dtype="float32",
+            ),
+            np.array(
+                (  # target coordinates
+                    (0, 0),  # upper left
+                    (self.ARENA_SIZE, 0),  # upper right
+                    (self.ARENA_SIZE, self.ARENA_SIZE),  # lower right
+                    (0, self.ARENA_SIZE),  # lower left
+                ),
+                dtype="float32",
+            ),
+        )
+
+        return cv.warpPerspective(image, H, (self.ARENA_SIZE, self.ARENA_SIZE))
+
+    def detect_rabbit(self):
+        """Detect rabbit from top-view image then return the contour"""
+        mask = cv.inRange(
+            cv.cvtColor(self.image_top_view, cv.COLOR_BGR2HSV),
+            np.array([0, 40, 200]),
+            np.array([30, 100, 250]),
+        )
+        mask = cv.morphologyEx(mask, cv.MORPH_CLOSE, np.ones((7, 7), np.uint8))
+        self.debug_publisher.publish(self.bridge.cv2_to_imgmsg(mask, "mono8"))
+        contours, _ = cv.findContours(  # find contours
+            mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE
+        )
+
+        # contours = [  # only keep contours that fit our criteria
+        #     cnt
+        #     for cnt in contours
+        #     if cv.contourArea(cnt) > 20 and cv.contourArea(cnt) < 100
+        # ]
+        cv.drawContours(self.image_top_view, contours, -1, (0, 0, 255), 3)
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = RabbitDetectionNode()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == "__main__":
+    main()

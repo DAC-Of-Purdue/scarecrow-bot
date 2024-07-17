@@ -140,3 +140,11 @@ ros2 run camera_calibration cameracalibrator --size 5x8 --square 0.03 --ros-args
 After the calibration process, you will get one yaml file.
 Name it the same name as in `camera_params.yaml` (for example, `arena_cam.yaml`).
 Then move it (or link) to `~/.ros/camera_info/arena_cam.yaml`.
+
+Video stream comes with multiple formats.
+It is a good practice to use compressed encoder when transmit video stream over the network.
+Then use `image_transport republish` to decode the video stream at the off-board computer.
+
+```bash
+ros2 run image_transport republish compressed in/compressed:=/image_raw/compressed  out:=/arena
+```
