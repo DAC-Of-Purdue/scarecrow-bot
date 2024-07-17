@@ -5,7 +5,10 @@
     io_method: "mmap"
     frame_id: "arena"
     pixel_format: "mjpeg2rgb"
-    image_width: 800
-    image_height: 600
+    image_width: 1280
+    image_height: 720
     camera_name: "arena_cam"
-    power_line_frequency: 2
+    power_line_frequency: 0
+    brightness: -20
+    contrast: 10
+    saturation: 100
