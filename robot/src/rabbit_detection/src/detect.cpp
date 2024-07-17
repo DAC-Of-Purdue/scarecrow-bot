@@ -67,9 +67,17 @@ void imageCallback(const sensor_msgs::msg::Image::ConstSharedPtr &msg)
             lower_left_target);
 
         cv::Mat hsv, mask;
-        // cv::circle(bgr_ptr->image, cv::Point(50, 50), 10, CV_RGB(255, 0, 0));
+        // find a mask in HSV color space
         cv::cvtColor(img, hsv, cv::COLOR_BGR2HSV);
         cv::inRange(hsv, cv::Scalar(0, 10, 200), cv::Scalar(30, 100, 255), mask);
+        // draw contours
+        std::vector<std::vector<cv::Point>> contours;
+        std::vector<cv::Vec4i> hierarchy;
+        cv::findContours(mask, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+        for (size_t i = 0; i < contours.size(); i++)
+        {
+            drawContours(img, contours, (int)i, CV_RGB(255, 0, 0), 2, cv::LINE_8, hierarchy, 0);
+        }
         cv::imshow("raw", img);
         cv::imshow("mask", mask);
         cv::waitKey(10);
