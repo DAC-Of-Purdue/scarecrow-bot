@@ -4,7 +4,7 @@ package_name = "robo_rabbit_run"
 
 setup(
     name=package_name,
-    version="0.0.1",
+    version="0.0.2",
     packages=find_packages(exclude=["test"]),
     data_files=[
         ("share/ament_index/resource_index/packages", ["resource/" + package_name]),
@@ -18,6 +18,9 @@ setup(
     license="MIT",
     tests_require=["pytest"],
     entry_points={
-        "console_scripts": ["rabbit_detector = robo_rabbit_run.detector:main"],
+        "console_scripts": [
+            "rabbit_detector = robo_rabbit_run.detector:main",
+            "navigation = robo_rabbit_run.navigation:main",
+        ],
     },
 )

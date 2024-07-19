@@ -4,6 +4,7 @@ import numpy as np
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import Image
+from geometry_msgs.msg import Point
 from cv_bridge import CvBridge, CvBridgeError
 
 
@@ -23,6 +24,9 @@ class RabbitDetectionNode(Node):
         )
         self.debug_publisher = self.create_publisher(
             Image, "rabbit/debug", qos_profile=qos_profile_sensor_data
+        )
+        self.location_publisher = self.create_publisher(
+            Point, "rabbit/location", qos_profile=qos_profile_sensor_data
         )
         self.bridge = CvBridge()
 
@@ -68,8 +72,39 @@ class RabbitDetectionNode(Node):
 
         return cv.warpPerspective(image, H, (self.ARENA_SIZE, self.ARENA_SIZE))
 
+    def locate_rabbit(self, contours: list):
+        """extract moment on each contour and then average"""
+        # initial locations
+        x = 0
+        y = 0
+        for cnt in contours:
+            moment = cv.moments(cnt)
+            x += int(moment["m10"] / moment["m00"])
+            y += int(moment["m01"] / moment["m00"])
+
+        try:
+
+            x = x / len(contours)
+            y = y / len(contours)
+
+            rabbit_location = Point(x=x, y=y, z=0.0)
+            self.location_publisher.publish(rabbit_location)
+
+            cv.putText(
+                self.image_top_view,
+                f"{x}, {y}",
+                (int(x) - 20, int(y) - 20),
+                cv.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (0, 0, 0),
+                2,
+            )
+
+        except ZeroDivisionError:
+            ...
+
     def detect_rabbit(self):
-        """Detect rabbit from top-view image then return the contour"""
+        """Detect rabbit from top-view image then find the contours"""
         mask = cv.inRange(
             cv.cvtColor(self.image_top_view, cv.COLOR_BGR2HSV),
             np.array([0, 40, 200]),
@@ -81,12 +116,12 @@ class RabbitDetectionNode(Node):
             mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE
         )
 
-        # contours = [  # only keep contours that fit our criteria
-        #     cnt
-        #     for cnt in contours
-        #     if cv.contourArea(cnt) > 20 and cv.contourArea(cnt) < 100
-        # ]
+        contours = [  # only keep contours that fit our criteria
+            cnt for cnt in contours if cv.contourArea(cnt) > 20
+        ]
         cv.drawContours(self.image_top_view, contours, -1, (0, 0, 255), 3)
+
+        self.locate_rabbit(contours)
 
 
 def main(args=None):
