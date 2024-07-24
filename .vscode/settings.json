@@ -4,6 +4,7 @@
     "imgmsg",
     "irobot",
     "nanosec",
+    "odometry",
     "proto",
     "rclpy",
     "robo",
