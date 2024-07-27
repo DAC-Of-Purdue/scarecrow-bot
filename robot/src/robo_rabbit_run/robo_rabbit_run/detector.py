@@ -29,6 +29,7 @@ class RabbitDetectionNode(Node):
             Point, "rabbit/location", qos_profile=qos_profile_sensor_data
         )
         self.bridge = CvBridge()
+        self.find_transformation()
 
     def listener_callback(self, msg: Image):
         try:
@@ -45,17 +46,32 @@ class RabbitDetectionNode(Node):
         except CvBridgeError as e:
             self.get_logger().error("Failed to convert image: %s" % str(e))
 
-    def top_view_transformation(self, image):
-        """
-        Apply perspective transformation
-        """
-        H = cv.getPerspectiveTransform(
+    def find_transformation(self):
+        self.H = cv.getPerspectiveTransform(
+            # np.array(
+            #     (  # arena 4 corner's coordinates
+            #         (96, 114),  # upper left
+            #         (688, 22),  # upper right
+            #         (1210, 272),  # lower right
+            #         (366, 682),  # lower left
+            #     ),
+            #     dtype="float32",
+            # ),
+            # np.array(
+            #     (  # target coordinates
+            #         (0, 0),  # upper left
+            #         (self.ARENA_SIZE, 0),  # upper right
+            #         (self.ARENA_SIZE, self.ARENA_SIZE),  # lower right
+            #         (0, self.ARENA_SIZE),  # lower left
+            #     ),
+            #     dtype="float32",
+            # ),
             np.array(
                 (  # arena 4 corner's coordinates
-                    (96, 114),  # upper left
-                    (688, 22),  # upper right
-                    (1210, 272),  # lower right
-                    (366, 682),  # lower left
+                    (315, 308),  # upper left
+                    (1059, 298),  # upper right
+                    (1234, 681),  # lower right
+                    (79, 695),  # lower left
                 ),
                 dtype="float32",
             ),
@@ -63,14 +79,21 @@ class RabbitDetectionNode(Node):
                 (  # target coordinates
                     (0, 0),  # upper left
                     (self.ARENA_SIZE, 0),  # upper right
-                    (self.ARENA_SIZE, self.ARENA_SIZE),  # lower right
-                    (0, self.ARENA_SIZE),  # lower left
+                    (self.ARENA_SIZE, self.ARENA_SIZE - 100),  # lower right
+                    (0, self.ARENA_SIZE - 100),  # lower left
                 ),
                 dtype="float32",
             ),
         )
 
-        return cv.warpPerspective(image, H, (self.ARENA_SIZE, self.ARENA_SIZE))
+    def top_view_transformation(self, image):
+        """
+        Apply perspective transformation
+        """
+
+        return cv.warpPerspective(
+            image, self.H, (self.ARENA_SIZE, self.ARENA_SIZE - 100)
+        )
 
     def locate_rabbit(self, contours: list):
         """extract moment on each contour and then average"""
@@ -99,6 +122,7 @@ class RabbitDetectionNode(Node):
                 (0, 0, 0),
                 2,
             )
+            cv.circle(self.image_top_view, (int(x), int(y)), 5, (255, 0, 255), -1)
 
         except ZeroDivisionError:
             ...
@@ -108,7 +132,7 @@ class RabbitDetectionNode(Node):
         mask = cv.inRange(
             cv.cvtColor(self.image_top_view, cv.COLOR_BGR2HSV),
             np.array([0, 40, 200]),
-            np.array([30, 100, 250]),
+            np.array([15, 100, 255]),
         )
         mask = cv.morphologyEx(mask, cv.MORPH_CLOSE, np.ones((7, 7), np.uint8))
         self.debug_publisher.publish(self.bridge.cv2_to_imgmsg(mask, "mono8"))
