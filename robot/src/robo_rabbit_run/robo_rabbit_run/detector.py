@@ -11,7 +11,7 @@ from cv_bridge import CvBridge, CvBridgeError
 class RabbitDetectionNode(Node):
 
     def __init__(self):
-        self.ARENA_SIZE = 500
+        self.ARENA_SIZE = 400
         super().__init__("rabbit_detector")
         self.subscription = self.create_subscription(
             Image,
@@ -47,40 +47,23 @@ class RabbitDetectionNode(Node):
             self.get_logger().error("Failed to convert image: %s" % str(e))
 
     def find_transformation(self):
+
         self.H = cv.getPerspectiveTransform(
-            # np.array(
-            #     (  # arena 4 corner's coordinates
-            #         (96, 114),  # upper left
-            #         (688, 22),  # upper right
-            #         (1210, 272),  # lower right
-            #         (366, 682),  # lower left
-            #     ),
-            #     dtype="float32",
-            # ),
-            # np.array(
-            #     (  # target coordinates
-            #         (0, 0),  # upper left
-            #         (self.ARENA_SIZE, 0),  # upper right
-            #         (self.ARENA_SIZE, self.ARENA_SIZE),  # lower right
-            #         (0, self.ARENA_SIZE),  # lower left
-            #     ),
-            #     dtype="float32",
-            # ),
             np.array(
                 (  # arena 4 corner's coordinates
-                    (315, 308),  # upper left
-                    (1059, 298),  # upper right
-                    (1234, 681),  # lower right
-                    (79, 695),  # lower left
+                    (248, 109),  # upper left
+                    (934, 57),  # upper right
+                    (1269, 507),  # lower right
+                    (37, 639),  # lower left
                 ),
                 dtype="float32",
             ),
             np.array(
                 (  # target coordinates
                     (0, 0),  # upper left
-                    (self.ARENA_SIZE, 0),  # upper right
-                    (self.ARENA_SIZE, self.ARENA_SIZE - 100),  # lower right
-                    (0, self.ARENA_SIZE - 100),  # lower left
+                    (self.ARENA_SIZE - 1, 0),  # upper right
+                    (self.ARENA_SIZE - 1, self.ARENA_SIZE - 1),  # lower right
+                    (0, self.ARENA_SIZE - 1),  # lower left
                 ),
                 dtype="float32",
             ),
@@ -91,9 +74,7 @@ class RabbitDetectionNode(Node):
         Apply perspective transformation
         """
 
-        return cv.warpPerspective(
-            image, self.H, (self.ARENA_SIZE, self.ARENA_SIZE - 100)
-        )
+        return cv.warpPerspective(image, self.H, (self.ARENA_SIZE, self.ARENA_SIZE))
 
     def locate_rabbit(self, contours: list):
         """extract moment on each contour and then average"""
