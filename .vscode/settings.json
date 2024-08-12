@@ -1,8 +1,10 @@
 {
   "cSpell.words": [
+    "arccos",
     "dtype",
     "imgmsg",
     "irobot",
+    "linalg",
     "nanosec",
     "odometry",
     "proto",

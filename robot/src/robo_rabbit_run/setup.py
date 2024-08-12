@@ -19,7 +19,7 @@ setup(
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
-            "rabbit_detector = robo_rabbit_run.detector:main",
+            "detector = robo_rabbit_run.detector:main",
             "navigation = robo_rabbit_run.navigation:main",
         ],
     },

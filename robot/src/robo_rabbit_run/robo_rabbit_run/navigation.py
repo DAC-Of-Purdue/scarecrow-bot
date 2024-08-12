@@ -19,12 +19,19 @@ class NavigationNode(Node):
             self.rabbit_location_callback,
             qos_profile=qos_profile_sensor_data,
         )
-        self.odom_sub = self.create_subscription(
-            Odometry,
-            "odom",
-            self.odom_callback,
+
+        self.scarecrow_location_sub = self.create_subscription(
+            Point,
+            "scarecrow/location",
+            self.scarecrow_location_callback,
             qos_profile=qos_profile_sensor_data,
         )
+        # self.odom_sub = self.create_subscription(
+        #     Odometry,
+        #     "odom",
+        #     self.odom_callback,
+        #     qos_profile=qos_profile_sensor_data,
+        # )
         self.control_publisher = self.create_publisher(
             Twist, "cmd_vel", qos_profile=qos_profile_system_default
         )
@@ -129,27 +136,30 @@ class NavigationNode(Node):
         return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
 
     def chasing(self, dist: float, location: Point):
-        if self.prev_location and self.current_heading is not None:
-            cmd = Twist()
+        cmd = Twist()
+        if self.prev_location is not None and self.current_heading is not None:
             cmd.angular.z = 0.0
-            speed = 0.0 if dist < 100 else 1.0
-            cmd.linear.x = speed
+            speed = 0.0 if dist < 30 else 1.0
+            cmd.linear.x = speed / 2
             target_heading = self.calc_heading(self.prev_location, location)
-            target_vector = self.calc_vector(self.prev_location, location)
-            diff_angle = self.calc_angle_two_vectors(self.robot_vec, target_vector)
             diff_heading = target_heading - self.current_heading
             print(
-                f"robot location = ({self.prev_location.x:5.3f}, {self.prev_location.y:5.3f}) dist = {dist:5.1f}"
-                f" target heading = {target_heading:3.0f} current heading = {self.current_heading:3.0f} diff = {diff_heading:4.0f} {diff_angle * 180 / (22/7):4.0f}"
+                f" target heading = {target_heading:3.0f} current heading = {self.current_heading:3.0f} diff = {diff_heading:4.0f} {dist:4.0f}"
             )
-            if np.abs(diff_heading) > 150:
-                cmd.angular.z = np.sign(diff_angle) * speed
-                cmd.linear.x = 0.2
-            elif np.abs(diff_heading) < 30:
-                cmd.angular.z = 0.0
-            else:
-                cmd.angular.z = np.sign(diff_heading) * 0.7 * speed * -1
-            self.control_publisher.publish(cmd)
+            print(self.prev_location)
+
+            cmd.angular.z = np.clip((diff_heading / 50) * -1 * speed, -1.0, 1.0)
+            print(cmd.angular)
+        else:
+            cmd.linear.x = 0.2
+        self.control_publisher.publish(cmd)
+
+    def scarecrow_location_callback(self, msg: Point):
+        if self.prev_location and self.calc_distance(msg) > 3:
+            self.current_heading = self.calc_heading(self.prev_location, msg)
+            self.prev_location = msg
+        if self.prev_location is None:
+            self.prev_location = msg  # save previous location
 
 
 def main(args=None):
