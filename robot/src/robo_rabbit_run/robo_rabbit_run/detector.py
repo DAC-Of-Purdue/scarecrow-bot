@@ -81,6 +81,11 @@ class RabbitDetectionNode(Node):
         """
 
         top_view = cv.warpPerspective(image, self.H, (self.ARENA_SIZE, self.ARENA_SIZE))
+        x_exclude = 205
+        y_exclude = 190
+        top_view[:y_exclude, x_exclude:, :] = np.zeros(
+            (y_exclude, self.ARENA_SIZE - x_exclude, 3)
+        )
         return top_view
 
     def locate_rabbit(self, contours: list):
@@ -143,7 +148,7 @@ class RabbitDetectionNode(Node):
         """Detect scarecrow bot from top-view image then find the contours"""
         mask = cv.inRange(
             cv.cvtColor(self.image_top_view, cv.COLOR_BGR2HSV),
-            np.array([18, 75, 150]),
+            np.array([18, 0, 180]),
             np.array([30, 255, 255]),
         )
         mask = cv.morphologyEx(mask, cv.MORPH_CLOSE, np.ones((7, 7), np.uint8))
