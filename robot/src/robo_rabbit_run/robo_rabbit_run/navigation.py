@@ -11,7 +11,7 @@ from geometry_msgs.msg import PoseWithCovariance, TwistWithCovariance, Point, Tw
 class NavigationNode(Node):
 
     def __init__(self):
-        self.ARENA_SIZE = 500
+        self.ARENA_SIZE = 400
         super().__init__("scarecrow_nav")
         self.rabbit_location_sub = self.create_subscription(
             Point,
@@ -26,6 +26,8 @@ class NavigationNode(Node):
             self.scarecrow_location_callback,
             qos_profile=qos_profile_sensor_data,
         )
+
+        self.timer = self.create_timer(0.25, self.chasing)
         # self.odom_sub = self.create_subscription(
         #     Odometry,
         #     "odom",
@@ -35,8 +37,10 @@ class NavigationNode(Node):
         self.control_publisher = self.create_publisher(
             Twist, "cmd_vel", qos_profile=qos_profile_system_default
         )
-        self.prev_location = None
-        self.current_heading = None
+        self.rabbit_location_current = None
+        self.turtle_location_current = None
+        self.turtle_location_prev = None
+        # self.turtle_heading_current = None
         self.find_transformation()
 
     def odom_callback(self, msg: Odometry):
@@ -49,10 +53,12 @@ class NavigationNode(Node):
         location = self.plane_transformation(
             Point(x=pose.pose.position.x, y=pose.pose.position.y, z=1.0)
         )
-        if self.prev_location:
-            self.current_heading = self.calc_heading(self.prev_location, location)
-            self.robot_vec = self.calc_vector(self.prev_location, location)
-        self.prev_location = location  # save previous location
+        if self.turtle_location_prev:
+            self.turtle_heading_current = self.calc_heading(
+                self.turtle_location_prev, location
+            )
+            self.robot_vec = self.calc_vector(self.turtle_location_prev, location)
+        self.turtle_location_prev = location  # save previous location
 
     def calc_vector(self, loc_a: Point, loc_b: Point):
         return np.array([loc_b.x - loc_a.x, loc_b.y - loc_a.y])
@@ -105,16 +111,12 @@ class NavigationNode(Node):
         )
 
     def rabbit_location_callback(self, msg: Point):
-        dist = self.calc_distance(msg)
-        self.chasing(dist, msg)
+        self.rabbit_location_current = msg
 
-    def calc_distance(self, rabbit_location: Point) -> float:
-        if self.prev_location is None:
-            return 0
+    def calc_distance(self, location_a: Point, location_b: Point) -> float:
 
         return math.sqrt(
-            (self.prev_location.x - rabbit_location.x) ** 2
-            + (self.prev_location.y - rabbit_location.y) ** 2
+            (location_a.x - location_b.x) ** 2 + (location_a.y - location_b.y) ** 2
         )
 
     def calc_angle_two_vectors(self, v1, v2):
@@ -135,31 +137,56 @@ class NavigationNode(Node):
         v2_u = unit_vector(v2)
         return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
 
-    def chasing(self, dist: float, location: Point):
+    def chasing(self):
         cmd = Twist()
-        if self.prev_location is not None and self.current_heading is not None:
+        if self.turtle_location_prev is not None:
+            dist = self.calc_distance(
+                self.rabbit_location_current, self.turtle_location_current
+            )
             cmd.angular.z = 0.0
             speed = 0.0 if dist < 30 else 1.0
             cmd.linear.x = speed / 2
-            target_heading = self.calc_heading(self.prev_location, location)
-            diff_heading = target_heading - self.current_heading
-            print(
-                f" target heading = {target_heading:3.0f} current heading = {self.current_heading:3.0f} diff = {diff_heading:4.0f} {dist:4.0f}"
+            heading_current = self.calc_heading(
+                self.turtle_location_prev, self.turtle_location_current
             )
-            print(self.prev_location)
+            heading_target = self.calc_heading(
+                self.turtle_location_current, self.rabbit_location_current
+            )
+            diff_heading = heading_target - heading_current
+            print(
+                f" target heading = {heading_target:3.0f} current heading = {heading_current:3.0f} diff = {diff_heading:4.0f} {dist:4.0f}"
+            )
+            # print(self.turtle_location_prev)
+            if np.abs(diff_heading) > 90:
+                # only turn
+                cmd.linear.x = 0.1
+                cmd.angular.z = -1.0 if heading_target > heading_current else 1.0
 
-            cmd.angular.z = np.clip((diff_heading / 50) * -1 * speed, -1.0, 1.0)
-            print(cmd.angular)
+            else:
+                if np.abs(diff_heading) > 180:
+                    cmd.angular.z = np.clip((diff_heading / 30) * speed, -1.0, 1.0)
+                else:
+                    cmd.angular.z = np.clip((diff_heading / 30) * -1 * speed, -1.0, 1.0)
+            print(cmd.linear.x, cmd.angular.z)
+        elif self.turtle_location_prev is not None:
+            self.calc_heading(self.turtle_location_prev, self.turtle_location_current)
+
         else:
+            # first event. Then it will have turtle_location_prev
             cmd.linear.x = 0.2
+
         self.control_publisher.publish(cmd)
+        self.turtle_location_prev = self.turtle_location_current
 
     def scarecrow_location_callback(self, msg: Point):
-        if self.prev_location and self.calc_distance(msg) > 3:
-            self.current_heading = self.calc_heading(self.prev_location, msg)
-            self.prev_location = msg
-        if self.prev_location is None:
-            self.prev_location = msg  # save previous location
+        self.turtle_location_current = msg
+        # if self.turtle_location_prev and self.calc_distance(self.turtle_location_prev, msg) > 3:
+        #     self.turtle_heading_current = self.calc_heading(
+        #         self.turtle_location_prev, msg
+        #     )
+        #     self.turtle_location_prev = msg
+        # if self.turtle_location_prev is None:
+        #     self.turtle_location_prev = msg  # save previous location
 
 
 def main(args=None):
