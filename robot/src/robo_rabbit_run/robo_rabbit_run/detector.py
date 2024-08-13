@@ -140,7 +140,7 @@ class RabbitDetectionNode(Node):
         )
 
         contours = [  # only keep contours that fit our criteria
-            cnt for cnt in contours if cv.contourArea(cnt) > 20
+            cnt for cnt in contours if cv.contourArea(cnt) > 40
         ]
         self.locate_rabbit(contours)
 
@@ -158,12 +158,9 @@ class RabbitDetectionNode(Node):
         )
 
         contours = [  # only keep contours that fit our criteria
-            cnt for cnt in contours if cv.contourArea(cnt) > 5
+            cnt for cnt in contours if cv.contourArea(cnt) > 15
         ]
-        if len(contours) > 0:
-            self.locate_scarecrow(contours)
-        else:
-            print("No scarecrow detected")
+        self.locate_scarecrow(contours)
 
     def locate_scarecrow(self, contours: list):
         """extract moment on each contour and then average"""

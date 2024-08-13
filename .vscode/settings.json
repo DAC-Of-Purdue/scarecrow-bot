@@ -5,10 +5,13 @@
     "imgmsg",
     "irobot",
     "linalg",
+    "mqtt",
     "nanosec",
     "odometry",
+    "paho",
     "proto",
     "rclpy",
+    "rfid",
     "robo",
     "turtlebot"
   ],

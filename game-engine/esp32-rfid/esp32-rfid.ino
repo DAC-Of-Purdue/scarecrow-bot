@@ -13,9 +13,9 @@ MFRC522 mfrc522{driver};  // Create MFRC522 instance.
 
 uint32_t chipId = 0;
 EspMQTTClient client(
-  "DigitalAGclub",  // WiFi SSID at the maker space
+  "DigitalAGClub",  // WiFi SSID at the maker space
   "username",       // WiFi password
-  "192.168.0.100"  // MQTT Broker server IP
+  "192.168.1.100"  // MQTT Broker server IP
 );
 
 void onConnectionEstablished()
@@ -68,10 +68,12 @@ void loop() {
  * Helper routine to dump a byte array as hex values to Serial.
  */
 void dump_byte_array(byte *buffer, byte bufferSize) {
+  char payload[bufferSize];
     for (byte i = 0; i < bufferSize; i++) {
         Serial.print(buffer[i] < 0x10 ? " 0" : " ");
         Serial.print(buffer[i], HEX);
+        payload[i] = buffer[i];
     }
-
-    client.publish("purdue-dac/carrot", "Hello", false);
+    
+    client.publish("purdue-dac/carrot", payload, false);
 }
