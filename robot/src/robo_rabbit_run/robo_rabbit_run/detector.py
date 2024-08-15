@@ -148,7 +148,7 @@ class RabbitDetectionNode(Node):
         """Detect scarecrow bot from top-view image then find the contours"""
         mask = cv.inRange(
             cv.cvtColor(self.image_top_view, cv.COLOR_BGR2HSV),
-            np.array([18, 100, 180]),
+            np.array([18, 180, 180]),
             np.array([30, 255, 255]),
         )
         mask = cv.morphologyEx(mask, cv.MORPH_CLOSE, np.ones((7, 7), np.uint8))
@@ -175,7 +175,7 @@ class RabbitDetectionNode(Node):
         try:
 
             x = x / len(contours)
-            y = y / len(contours)
+            y = y / len(contours) + 20
 
             scarecrow_location = Point(x=x, y=y, z=0.0)
             self.scarecrow_location_publisher.publish(scarecrow_location)

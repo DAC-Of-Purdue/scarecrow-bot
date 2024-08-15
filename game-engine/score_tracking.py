@@ -1,4 +1,5 @@
 import json
+import time
 import paho.mqtt.client as mqtt
 from datetime import datetime, timedelta
 
@@ -8,38 +9,71 @@ def on_connect(client, user_data, flags, reason_code, properties):
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
     client.subscribe("purdue-dac/carrot")
+    client.subscribe("purdue-dac/cmd")
 
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, user_data, msg):
-    uid = msg.payload.hex().upper()
-    with open("rfid.json", "r") as fp:
-        tags = json.load(fp)
-    tags[uid] = 5
-    with open("rfid.json", "w") as fp:
-        json.dump(tags, fp)
-    print(uid)
-    global last_time  # Bad practice. Only use in emergency
-    if last_time is None:
-        last_time = datetime.now()
-    if (datetime.now() - last_time) < timedelta(seconds=4, microseconds=500):
-        client.publish("purdue-dac/sound", "1")
-    elif (datetime.now() - last_time) > timedelta(seconds=7):
-        last_time = None
-    else:
-        client.publish("purdue-dac/sound", "2")
-        last_time = None
+    match msg.topic:
+        case "purdue-dac/carrot":
+            uid = msg.payload.hex().upper()
+            with open("rfid.json", "r") as fp:
+                tags = json.load(fp)
+            carrot_id = tags[uid]
+            global carrot_bytes  # Bad practice. Only use in emergency. We could use user_data
+            bite = carrot_bytes[carrot_id - 1]
+            if bite > 0:
+                bite -= 1
+                if bite == 0:
+                    client.publish("purdue-dac/sound", "2")
+                else:
+                    client.publish("purdue-dac/sound", "1")
+
+            carrot_bytes[carrot_id - 1] = bite
+
+            map = ["1" if bite == 0 else "0" for bite in carrot_bytes]
+            map = "".join(map)
+            client.publish("purdue-dac/map", map)
+        case "purdue-dac/cmd":
+            match msg.payload.decode("utf-8"):
+                case "0":
+                    global game_on
+                    game_on = False
+                    client.publish("purdue-dac/sound", "3")
 
 
+# if (datetime.now() - last_time) < timedelta(seconds=4, microseconds=500):
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 client.on_connect = on_connect
 client.on_message = on_message
-last_time = None
+carrot_bytes = [5, 5, 5, 5, 5]
 
 client.connect("localhost", 1883, 60)
+game_on = True
+start_time = datetime.now()
 
 # Blocking call that processes network traffic, dispatches callbacks and
 # handles reconnecting.
 # Other loop*() functions are available that give a threaded interface and a
 # manual interface.
-client.loop_forever()
+client.loop_start()
+
+while (datetime.now() - start_time) < timedelta(minutes=5) and game_on:
+    time.sleep(1)
+
+end_time = datetime.now()
+client.loop_stop()
+
+
+time_use = (end_time - start_time).seconds
+score = 0 if time_use > 300 else 300 - time_use
+
+for bite in carrot_bytes:
+    if bite > 0:
+        score += 50 * (5 - bite)
+    else:
+        score += 300
+
+print(time_use)
+print(carrot_bytes)
+print(score)
