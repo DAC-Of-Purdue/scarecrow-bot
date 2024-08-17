@@ -1,6 +1,7 @@
 import json
 import time
 import paho.mqtt.client as mqtt
+import requests
 from datetime import datetime, timedelta
 
 
@@ -39,7 +40,6 @@ def on_message(client, user_data, msg):
                 case "0":
                     global game_on
                     game_on = False
-                    client.publish("purdue-dac/sound", "3")
 
 
 # if (datetime.now() - last_time) < timedelta(seconds=4, microseconds=500):
@@ -48,9 +48,13 @@ client.on_connect = on_connect
 client.on_message = on_message
 carrot_bytes = [5, 5, 5, 5, 5]
 
+passcode = "0101KurzweiL99"
+team_id = "1"
+
 client.connect("localhost", 1883, 60)
 game_on = True
 start_time = datetime.now()
+client.publish("purdue-dac/map", "00000")
 
 # Blocking call that processes network traffic, dispatches callbacks and
 # handles reconnecting.
@@ -62,8 +66,8 @@ while (datetime.now() - start_time) < timedelta(minutes=5) and game_on:
     time.sleep(1)
 
 end_time = datetime.now()
+client.publish("purdue-dac/sound", "3")
 client.loop_stop()
-
 
 time_use = (end_time - start_time).seconds
 score = 0 if time_use > 300 else 300 - time_use
@@ -77,3 +81,17 @@ for bite in carrot_bytes:
 print(time_use)
 print(carrot_bytes)
 print(score)
+
+res = requests.get(
+    "https://rabbitrun.digitalagclub.org/api/stopGame", params={"passcode": passcode}
+)
+
+if input("Trial or get caught: ").lower() in ["yes", "y"]:
+    score = 0
+    print(f"Score overwrite to {score}")
+
+
+res = requests.get(
+    "https://rabbitrun.digitalagclub.org/api/pushScore",
+    params={"teamid": team_id, "passcode": passcode, "score": score},
+)

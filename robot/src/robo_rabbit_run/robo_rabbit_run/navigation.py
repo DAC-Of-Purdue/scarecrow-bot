@@ -140,12 +140,20 @@ class NavigationNode(Node):
     def chasing(self):
         cmd = Twist()
         if self.turtle_location_prev is not None:
+            if (
+                self.calc_distance(
+                    self.turtle_location_current, self.turtle_location_prev
+                )
+                > 16
+            ):
+                self.turtle_location_prev = self.turtle_location_current
+
             dist = self.calc_distance(
                 self.rabbit_location_current, self.turtle_location_current
             )
             cmd.angular.z = 0.0
             speed = 0.0 if dist < 30 else 1.0
-            cmd.linear.x = speed / 2
+            cmd.linear.x = speed
             heading_current = self.calc_heading(
                 self.turtle_location_prev, self.turtle_location_current
             )
@@ -159,7 +167,7 @@ class NavigationNode(Node):
             # print(self.turtle_location_prev)
             if np.abs(diff_heading) > 90:
                 # only turn
-                cmd.linear.x = 0.1
+                cmd.linear.x = 0.3
                 cmd.angular.z = -1.0 if heading_target > heading_current else 1.0
 
             else:
@@ -168,15 +176,13 @@ class NavigationNode(Node):
                 else:
                     cmd.angular.z = np.clip((diff_heading / 30) * -1 * speed, -1.0, 1.0)
             print(cmd.linear.x, cmd.angular.z)
-        elif self.turtle_location_prev is not None:
-            self.calc_heading(self.turtle_location_prev, self.turtle_location_current)
 
         else:
             # first event. Then it will have turtle_location_prev
-            cmd.linear.x = 0.2
+            cmd.linear.x = 0.5
+            self.turtle_location_prev = self.turtle_location_current
 
         self.control_publisher.publish(cmd)
-        self.turtle_location_prev = self.turtle_location_current
 
     def scarecrow_location_callback(self, msg: Point):
         self.turtle_location_current = msg

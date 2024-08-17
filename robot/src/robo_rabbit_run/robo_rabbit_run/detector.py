@@ -140,7 +140,7 @@ class RabbitDetectionNode(Node):
         )
 
         contours = [  # only keep contours that fit our criteria
-            cnt for cnt in contours if cv.contourArea(cnt) > 40
+            cnt for cnt in contours if cv.contourArea(cnt) > 50
         ]
         self.locate_rabbit(contours)
 
