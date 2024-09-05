@@ -1,0 +1,41 @@
+Info: The backend will run on port 8002.
+Info: Overriding config value backend_port with env var BACKEND_PORT=8002
+───────────────────────────── Starting Reflex App ──────────────────────────────
+Compiling: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 14/14 0:00:00
+Creating Production Build:  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 9/9 0:00:51
+───────────────────────────────── App Running ──────────────────────────────────
+App running at: http://localhost:3000
+Backend running at: http://0.0.0.0:8002
+Info: Overriding config value backend_port with env var BACKEND_PORT=8002
+[2024-08-03 23:24:02 +0000] [161433] [ERROR] Worker (pid:161461) was sent SIGHUP!
+Starting frontend failed with exit code -1
+
+> prod
+> next start
+
+   ▲ Next.js 14.0.1
+   - Local:        http://localhost:3000
+
+ ✓ Ready in 1385ms
+Run with --loglevel debug  for the full log.
+Info: The frontend will run on port 3001.
+Backend port: 8002 is already in use
+[2024-08-05 20:30:02 +0000] [161433] [ERROR] Worker (pid:161462) was sent SIGHUP!
+───────────────────────────── Starting Reflex App ──────────────────────────────
+Compiling: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 14/14 0:00:00
+Creating Production Build:  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 9/9 0:01:01
+───────────────────────────────── App Running ──────────────────────────────────
+App running at: http://localhost:3000
+Backend running at: http://0.0.0.0:8002
+[2024-08-09 04:15:51 +0000] [15616] [ERROR] Worker (pid:15644) was sent SIGHUP!
+Starting frontend failed with exit code -1
+
+> prod
+> next start
+
+   ▲ Next.js 14.0.1
+   - Local:        http://localhost:3000
+
+ ✓ Ready in 1922ms
+Run with --loglevel debug  for the full log.
+[2024-08-09 04:17:54 +0000] [15616] [ERROR] Worker (pid:15660) was sent SIGHUP!

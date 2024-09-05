@@ -6,7 +6,7 @@
 #####################################
 
 import reflex as rx
-
+from scarecrowbot_site.global_components import wrapper
 
 #### Defining the registration page components (grouped UI elements) here, for simplicity. ###
 
@@ -31,7 +31,7 @@ def registrationForm(*components) -> rx.Component:
                         "bg": "#ed1f2d",
                     },
                     _active={
-                        "border": "2px solid white",
+                        "border": "2px solid tomato",
                         "bg": "#ed1f2d",
                     }),
                 # orange
@@ -43,7 +43,7 @@ def registrationForm(*components) -> rx.Component:
                         "bg": "#ed9b1f",
                     },
                     _active={
-                        "border": "2px solid white",
+                        "border": "2px solid tomato",
                         "bg": "#ed9b1f",
                     }),
                 # yellow
@@ -55,7 +55,7 @@ def registrationForm(*components) -> rx.Component:
                         "bg": "#fcf80d",
                     },
                     _active={
-                        "border": "2px solid white",
+                        "border": "2px solid tomato",
                         "bg": "#fcf80d",
                     }),
                 # green
@@ -67,7 +67,7 @@ def registrationForm(*components) -> rx.Component:
                         "bg": "#39e609",
                     },
                     _active={
-                        "border": "2px solid white",
+                        "border": "2px solid tomato",
                         "bg": "#39e609",
                     }),
                 # blue
@@ -79,7 +79,7 @@ def registrationForm(*components) -> rx.Component:
                         "bg": "#1873f2",
                     },
                     _active={
-                        "border": "2px solid white",
+                        "border": "2px solid tomato",
                         "bg": "#1873f2",
                     }),
                 # purple
@@ -91,20 +91,20 @@ def registrationForm(*components) -> rx.Component:
                         "bg": "#d211f0",
                     },
                     _active={
-                        "border": "2px solid white",
+                        "border": "2px solid tomato",
                         "bg": "#d211f0",
                     }),
-                # white
+                # black
                 rx.chakra.button(
                     size = "sm",
-                    bg = "#ffffff",
+                    bg = "#000000",
                     _hover={
                         "border": "2px solid white",
-                        "bg": "#ededed",
+                        "bg": "#000000",
                     },
                     _active={
-                        "border": "2px solid white",
-                        "bg": "#ededed",
+                        "border": "2px solid tomato",
+                        "bg": "#000000",
                     }),
                 # pink
                 rx.chakra.button(
@@ -115,7 +115,7 @@ def registrationForm(*components) -> rx.Component:
                         "bg": "#ff7373",
                     },
                     _active={
-                        "border": "2px solid white",
+                        "border": "2px solid tomato",
                         "bg": "#ff7373",
                     }),
             ),
@@ -165,28 +165,15 @@ def registrationForm(*components) -> rx.Component:
                 rx.button("Submit", type="submit"),
             )
         ),
-
-        size = '4',
         justify_content = 'center',
         style={
-            "backgroundColor": "rgba(0, 0, 0, 0.8)",
-            "color": "white",
+            "backgroundColor": "rgba(255, 255, 255, 1.0)",
         },
         variant = "ghost",
         align_items = "center"
     )
 
-### Main container wrapper (has background image).
-def bkgrndContainer(*components) -> rx.Component:
-    return rx.container(
-        *components,
-        width = "100%",
-        height = "100vh",
-        background = "url('/bkgrnd.png')",
-        background_size = "cover",
-        background_position = "center",
-        justify_content = "center"
-    )
-
 def register():
-    return bkgrndContainer(registrationForm())
+    return wrapper.globalWrapper(
+        registrationForm()
+    )
